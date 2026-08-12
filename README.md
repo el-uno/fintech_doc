@@ -13,36 +13,6 @@ the site.
 | **Stories** | Seven engineering narratives — symptom → diagnosis → the mechanism that prevents it |
 | **Practice** | Four interview question banks with worked answers, plus two self-check quizzes |
 
-## Design
-
-"Terminal corridor" — dark-first and technical. Charcoal ground (`#0D1117`), one electric-teal
-accent (`#2DD4BF`), amber (`#F59E0B`) for known gaps and warnings. Mono is structural: eyebrows,
-account codes, ledger figures. No glow, no gradients on text.
-
-All of it is in `style.css`. The custom classes used throughout the MDX:
-
-| Class | Meaning |
-| --- | --- |
-| `.arc-eyebrow` | Mono kicker above a page title (`--amber`, `--dim` variants) |
-| `.arc-claim` | A load-bearing claim the code enforces — teal left rule |
-| `.arc-gap` | A known limitation, stated rather than hidden — amber left rule |
-| `.arc-symptom` | The opening symptom of an engineering story |
-| `.arc-stats` / `.arc-stat` | Cited-figure strips |
-| `.arc-cite` | Source line at the foot of a research page |
-
-Keeping `.arc-claim` and `.arc-gap` used honestly is the site's main editorial rule: teal means
-there is a test or a database constraint behind it, amber means there is not.
-
-## Deploying
-
-`docs.json` is at the repository root, so no content-directory override is needed.
-
-1. Push this repository to `el-uno/fintech_doc`.
-2. At [dashboard.mintlify.com](https://dashboard.mintlify.com), create a deployment and connect
-   the `el-uno/fintech_doc` repository.
-3. Leave the content directory as the repository root.
-4. Deploys run on push to `main`.
-
 ## Local preview
 
 ```bash
@@ -63,15 +33,3 @@ Serves on `http://localhost:3000`. `mint broken-links` checks internal links.
   rather than inherited. Secondary-aggregator figures are flagged as such in
   `primer/bibliography.mdx`.
 - Pages describing planned work say so at the top. Nothing claims a capability the repo lacks.
-
-## Keeping it accurate
-
-Phase status appears in two places — `index.mdx` and `architecture/overview.mdx`. The pages most
-likely to go stale as the build progresses:
-
-| When this lands | Update |
-| --- | --- |
-| Prisma-backed `LedgerStore` | `architecture/ledger.mdx`, `architecture/testing.mdx` gaps |
-| Holds wired at quote time | `architecture/ledger.mdx`, `architecture/settlement-saga.mdx` |
-| Real `CompliancePort` replaces `AlwaysApprove` | `architecture/compliance.mdx` |
-| Phase 6–8 | Status tables, `decisions/index.mdx` planned ADRs |
