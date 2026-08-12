@@ -1,17 +1,17 @@
 ---
 title: "Risk and compliance"
-description: "KYC/KYB tiering, fuzzy sanctions screening, a five-family AML rule engine, and review queues with four-eyes approval — as a blocking pre-condition, not a side channel."
+description: "KYC/KYB tiering, fuzzy sanctions screening, a five-family AML rule engine, and review queues with four-eyes approval, as a blocking pre-condition, not a side channel."
 icon: "shield"
 ---
 
 <span className="arc-eyebrow">Architecture · the core</span>
 
 <Info>
-**Phase 5, in progress.** The KYC tiering, sanctions screener, AML rule engine and review queue are implemented and tested. Wiring the real `CompliancePort` implementation into the saga — replacing the permissive `AlwaysApprove` placeholder — is the remaining work. The gate itself is already in place.
+**Phase 5, in progress.** The KYC tiering, sanctions screener, AML rule engine and review queue are implemented and tested. Wiring the real `CompliancePort` implementation into the saga, replacing the permissive `AlwaysApprove` placeholder, is the remaining work. The gate itself is already in place.
 </Info>
 
 <Warning>
-**Not compliance software.** These rules and this screener illustrate how such systems are *structured*. They are not a compliance programme and must not be used as one. The sanctions list is entirely synthetic — every name is invented, no real person, entity or vessel appears, and none of the programmes correspond to any real one.
+**Not compliance software.** These rules and this screener illustrate how such systems are *structured*. They are not a compliance programme and must not be used as one. The sanctions list is entirely synthetic: every name is invented, no real person, entity or vessel appears, and none of the programmes correspond to any real one.
 </Warning>
 
 ---
@@ -19,10 +19,10 @@ icon: "shield"
 ## The organising principle
 
 <div className="arc-claim">
-Compliance is a **blocking pre-condition** on money movement, not a side channel. A transfer cannot leave the gate without a recorded decision, and a rejected or flagged transfer never reaches `reserve` — so no money moves at all.
+Compliance is a **blocking pre-condition** on money movement, not a side channel. A transfer cannot leave the gate without a recorded decision, and a rejected or flagged transfer never reaches `reserve`: so no money moves at all.
 </div>
 
-The alternative — screen asynchronously and claw back — is common and much worse. It means the failure mode is "we paid a sanctioned party and are now trying to recall it", which is a regulatory event rather than an engineering one.
+The alternative, screen asynchronously and claw back, is common and much worse. It means the failure mode is "we paid a sanctioned party and are now trying to recall it", which is a regulatory event rather than an engineering one.
 
 ```mermaid
 flowchart TD
@@ -48,7 +48,7 @@ Verification level decides what a customer may do. Four tiers, and the documents
 
 | Tier | Requires | Per-transfer limit | Rails |
 | --- | --- | --- | --- |
-| 0 · unverified | — | **0** | none |
+| 0 · unverified | n/a | **0** | none |
 | 1 · basic | National ID | €1,000 | SEPA, mobile money |
 | 2 · verified | Passport, proof of address, selfie | €15,000 | all |
 | 3 · enhanced | + source of funds | unlimited | all; second approver above €100k |
@@ -64,7 +64,7 @@ Two modelling decisions worth pulling out:
   <div>
     **`null` means unlimited, and is distinct from `0n`.**
 
-    The distinction matters enough that the limit check tests `=== null` explicitly rather than relying on falsiness — where `0n` and `null` would collapse into the same branch and invert the policy.
+    The distinction matters enough that the limit check tests `=== null` explicitly rather than relying on falsiness: where `0n` and `null` would collapse into the same branch and invert the policy.
   </div>
 </Columns>
 
@@ -76,7 +76,7 @@ Business accounts require certificate of incorporation, UBO declaration, and pro
 
 ### Maker–checker
 
-`requiresSecondApproval` is enterprise-only. Personal accounts return `false` immediately — a consumer sending money to family should not need a second approver — and encoding that as an early return keeps the intent obvious at the call site.
+`requiresSecondApproval` is enterprise-only. Personal accounts return `false` immediately, a consumer sending money to family should not need a second approver, and encoding that as an early return keeps the intent obvious at the call site.
 
 ---
 
@@ -94,7 +94,7 @@ Arc uses **Jaro–Winkler** similarity over normalised names, checked against bo
   </Accordion>
 
   <Accordion title="False positives are the actual design problem" icon="triangle-exclamation">
-    A screener tuned to catch everything flags everyone. The cost is not computational — it is a review queue that grows faster than analysts can clear it, and a team that starts approving on autopilot.
+    A screener tuned to catch everything flags everyone. The cost is not computational: it is a review queue that grows faster than analysts can clear it, and a team that starts approving on autopilot.
 
     So every match carries its score, the matched alias, the programme, and the entity type, and every hit produces an **audit trail entry** whether it is cleared or escalated. Clearing a false positive is a recorded decision by a named actor, not a silent dismissal.
   </Accordion>
@@ -104,13 +104,13 @@ Arc uses **Jaro–Winkler** similarity over normalised names, checked against bo
 
 ## The AML rule engine
 
-Five rule families, each returning a `RuleHit` with a severity, a score, a human-readable reason, and **evidence** — the specific prior transfers that triggered it.
+Five rule families, each returning a `RuleHit` with a severity, a score, a human-readable reason, and **evidence**: the specific prior transfers that triggered it.
 
 <AccordionGroup>
   <Accordion title="Structuring" icon="layer-group">
     Multiple transfers deliberately kept just under a reporting threshold. Arc's default: three or more transfers within a **1,500 bp band** below the €10,000 threshold, inside a 7-day window.
 
-    The band matters more than the threshold. Someone structuring does not send €9,999.99 — that is conspicuous. They send €8,400, €8,900, €9,100, and a rule that only catches the obvious case catches nobody.
+    The band matters more than the threshold. Someone structuring does not send €9,999.99, that is conspicuous. They send €8,400, €8,900, €9,100, and a rule that only catches the obvious case catches nobody.
   </Accordion>
 
   <Accordion title="Velocity" icon="gauge-high">
@@ -120,7 +120,7 @@ Five rule families, each returning a `RuleHit` with a severity, a score, a human
   </Accordion>
 
   <Accordion title="Unusual corridor" icon="route">
-    A transfer along a corridor this account has never used, or has used rarely, weighted by how unusual the corridor is generally. A first DE→KE transfer from an account that has only ever sent DE→FR is not suspicious on its own — it is a signal that combines with others.
+    A transfer along a corridor this account has never used, or has used rarely, weighted by how unusual the corridor is generally. A first DE→KE transfer from an account that has only ever sent DE→FR is not suspicious on its own: it is a signal that combines with others.
   </Accordion>
 
   <Accordion title="Round-tripping" icon="rotate">
@@ -159,7 +159,7 @@ The verdict carries **reasons and evidence**, not just a score. A decision a hum
 
 ## Review queues
 
-Cases are opened into one of four queues — `kyc`, `sanctions`, `aml`, `reconciliation` — with a priority that sets an SLA:
+Cases are opened into one of four queues, `kyc`, `sanctions`, `aml`, `reconciliation`: with a priority that sets an SLA:
 
 | Priority | SLA |
 | --- | --- |
@@ -173,7 +173,7 @@ Priority is derived from the risk score rather than chosen by hand, so it cannot
 A case moves `open → assigned → awaiting_second_approval → closed`, and every transition appends an `AuditEntry` recording the actor, the action, the timestamp and an optional detail.
 
 <div className="arc-claim">
-**Four-eyes is per-queue, not global.** Sanctions decisions require two distinct approvers; a routine KYC document review does not. Applying four-eyes everywhere sounds safer and is worse — it exhausts the reviewers who need to be sharp on the decisions that actually carry risk.
+**Four-eyes is per-queue, not global.** Sanctions decisions require two distinct approvers; a routine KYC document review does not. Applying four-eyes everywhere sounds safer and is worse: it exhausts the reviewers who need to be sharp on the decisions that actually carry risk.
 </div>
 
 The queue enforces that the second approver is a *different* actor from the first. That check is trivial to write and the single most common way maker–checker is quietly defeated in practice.
@@ -185,7 +185,7 @@ The queue enforces that the second approver is a *different* actor from the firs
 The movement context defines `CompliancePort` as an interface it owns; the risk context implements it. Movement never imports risk. The adapter lives at the composition root.
 
 <div className="arc-gap">
-`AlwaysApprove` is the current default implementation — a permissive placeholder so the saga was testable before the risk context existed. It is **not** a decision that compliance is optional. The gate is already a hard pre-condition in the saga; what remains is swapping the implementation and adding the compliance-blocked cases to the chaos suite.
+`AlwaysApprove` is the current default implementation: a permissive placeholder so the saga was testable before the risk context existed. It is **not** a decision that compliance is optional. The gate is already a hard pre-condition in the saga; what remains is swapping the implementation and adding the compliance-blocked cases to the chaos suite.
 </div>
 
 <CardGroup cols={2}>

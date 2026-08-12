@@ -1,18 +1,18 @@
 ---
-title: "Engineering stories"
+title: "IRL Scenarios"
 sidebarTitle: "Overview"
-description: "Seven narratives. Each opens on a symptom, walks the diagnosis, and lands on the specific piece of Arc that prevents it."
+description: "Seven real-world failure scenarios. Each opens on a symptom, walks the diagnosis, and lands on the specific piece of Arc that prevents it."
 icon: "book"
 ---
 
-<span className="arc-eyebrow">Stories · seven of them</span>
+<span className="arc-eyebrow">IRL Scenarios · seven of them</span>
 
-Architecture documentation explains what a system does. It is much worse at explaining **why anyone bothered**, because the reason is always a failure — usually one somebody else already had, expensively.
+Architecture documentation explains what a system does. It is much worse at explaining why anyone bothered, because the reason is always a failure, usually one somebody else already had, expensively.
 
-These are that layer. Each story opens on a symptom, walks the diagnosis the way it would actually go, and ends at the specific mechanism in Arc that prevents it. They are self-contained and readable in any order.
+These are that layer: the things that actually go wrong in payments infrastructure, written as the scenarios they are. Each one opens on a symptom, walks the diagnosis the way it would really go, and ends at the specific mechanism in Arc that prevents it. They are self-contained and readable in any order.
 
 <Note>
-Two of these describe things that genuinely happened while building Arc — a mutation that passed sixteen tests, and a boundary rule that silently did not apply. Those are marked. The rest are the standard failures of this domain, told as narrative because that is how they are actually learned.
+Two of these describe things that genuinely happened while building Arc: a mutation that passed sixteen tests, and a boundary rule that silently did not apply. Those are marked. The rest are the standard failures of this domain, written as scenarios because that is how they are actually learned.
 </Note>
 
 ---
@@ -22,7 +22,7 @@ Two of these describe things that genuinely happened while building Arc — a mu
 <Card title="The journal that balanced and lied" icon="triangle-exclamation" href="/stories/the-journal-that-balanced-and-lied">
   Compensation ran in the wrong order. The ledger balanced perfectly. All sixteen tests passed. The audit trail was fiction.
 
-  **The lesson:** balance is necessary but not sufficient. This is the best argument on the site for why correctness needs more than one kind of assertion — and it is the story most worth retelling in an interview.
+  **The lesson:** balance is necessary but not sufficient. This is the best argument on the site for why correctness needs more than one kind of assertion, and it is the scenario most worth retelling in an interview.
 </Card>
 
 ---
@@ -33,7 +33,7 @@ Two of these describe things that genuinely happened while building Arc — a mu
   <Tab title="Exactness">
     <CardGroup cols={1}>
       <Card title="The cent that vanished" icon="coins" href="/stories/the-cent-that-vanished">
-        The trial balance is off by €0.03. Nobody can find it, because it was never in one place — it was 0.00995 of a cent, three hundred times, rounded away into nothing. **Mechanism:** residuals posted to a rounding account.
+        The trial balance is off by €0.03. Nobody can find it, because it was never in one place. It was 0.00995 of a cent, three hundred times, rounded away into nothing. **Mechanism:** residuals posted to a rounding account.
       </Card>
       <Card title="The journal that balanced and lied" icon="triangle-exclamation" href="/stories/the-journal-that-balanced-and-lied">
         A balanced ledger with a false audit trail, and a mutation test that caught what sixteen assertions did not. **Mechanism:** reverse-order compensation, asserted directly.
@@ -55,7 +55,7 @@ Two of these describe things that genuinely happened while building Arc — a mu
   <Tab title="Time and money">
     <CardGroup cols={1}>
       <Card title="The fastest chain that settled last" icon="gauge-high" href="/stories/the-fastest-chain-that-settled-last">
-        Routing to the chain with the shortest block time made settlement twelve times slower. **Mechanism:** finality depth, not block time, as the routing input.
+        Routing to the chain with the shortest block time made settlement twelve times slower. Solana, Base and Polygon all behave differently, and only one of those differences is visible in a block-time column. **Mechanism:** finality depth, not block time, as the routing input.
       </Card>
       <Card title="The cut-off that cost a day" icon="clock" href="/stories/the-cutoff-that-cost-a-day">
         The payment was submitted at 16:00. It arrived Tuesday. Missing a batch window by an hour costs a day, not an hour. **Mechanism:** cut-off arithmetic that compounds, asserted exactly.
@@ -80,11 +80,11 @@ Two of these describe things that genuinely happened while building Arc — a mu
   <div>
     **A mechanism that solved a specific disaster is not.**
 
-    "The rail timed out, we retried, and the beneficiary got paid twice" is remembered — and the mechanism comes with it.
+    "The rail timed out, we retried, and the beneficiary got paid twice" is remembered, and the mechanism comes with it.
   </div>
 </Columns>
 
-Every story ends with the code that prevents it and a link to the architecture page that specifies it, so the narrative is an entry point rather than a substitute.
+Every scenario ends with the code that prevents it and a link to the architecture page that specifies it, so the narrative is an entry point rather than a substitute.
 
 <Card title="Prefer the specification?" icon="layer-group" href="/architecture/overview">
   The architecture tab covers the same mechanisms without the narrative framing.

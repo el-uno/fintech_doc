@@ -6,7 +6,7 @@ icon: "rotate-left"
 
 <span className="arc-eyebrow">Architecture · the core</span>
 
-How money actually crosses the corridor: quote, screen, reserve, swap, settle on-chain, pay out — with a compensating action at every step.
+How money actually crosses the corridor: quote, screen, reserve, swap, settle on-chain, pay out, with a compensating action at every step.
 
 The claim this page exists to justify:
 
@@ -22,7 +22,7 @@ That is asserted by the chaos suite, and the suite is mutation-checked.
 
 A database transaction gives you atomicity across things that share a transaction manager. A corridor transfer does not: it touches a ledger, a blockchain, and a foreign bank. There is no two-phase commit spanning M-Pesa and Ethereum, and there never will be.
 
-So the saga pattern: **run steps forward, and if one fails, run compensations backward.** Not atomicity — eventual consistency with an explicit, auditable unwind.
+So the saga pattern: **run steps forward, and if one fails, run compensations backward.** Not atomicity: eventual consistency with an explicit, auditable unwind.
 
 ```mermaid
 stateDiagram-v2
@@ -49,7 +49,7 @@ stateDiagram-v2
     CompensationFailed --> [*]
 ```
 
-Note the four terminal states. `compensation_failed` is the one that needs a human — and having it as a distinct outcome rather than a generic error is the difference between an operational alert and a mystery.
+Note the four terminal states. `compensation_failed` is the one that needs a human, and having it as a distinct outcome rather than a generic error is the difference between an operational alert and a mystery.
 
 ---
 
@@ -59,7 +59,7 @@ Each step is `{ name, execute, compensate }`, and the whole design is that these
 
 | Step | Does | Compensates by |
 | --- | --- | --- |
-| `compliance` | Screens sender, beneficiary, amount, corridor | Nothing — no money has moved |
+| `compliance` | Screens sender, beneficiary, amount, corridor | Nothing: no money has moved |
 | `reserve` | Debits the sender; splits out fees | Reversing journal: sender refunded in full |
 | `swap` | Converts the send currency to the settlement asset | Reversing journal |
 | `settle` | Broadcasts on-chain, waits for finality, posts the network fee | Reversing journal |
@@ -69,7 +69,7 @@ Each step is `{ name, execute, compensate }`, and the whole design is that these
 **Compliance is a hard pre-condition, not a side channel.** A transfer that is rejected or flagged for review never reaches `reserve`, so no money moves at all.
 </div>
 
-`SettlementSaga.execute` runs steps in order and records completions. On any throw it compensates and **returns a result** rather than propagating — a failed transfer is a business outcome, not an exception for the caller to handle.
+`SettlementSaga.execute` runs steps in order and records completions. On any throw it compensates and **returns a result** rather than propagating: a failed transfer is a business outcome, not an exception for the caller to handle.
 
 ---
 
@@ -101,7 +101,7 @@ Each step is `{ name, execute, compensate }`, and the whole design is that these
     | `asset.float.chain.USDC` | 1072.35 | |
     | `equity.fx_position.USDC` | | 1072.35 |
 
-    Two currencies, each balancing independently. **The EUR position account now carries a standing credit — that *is* the open FX exposure**, and it is visible rather than implicit.
+    Two currencies, each balancing independently. **The EUR position account now carries a standing credit: that *is* the open FX exposure**, and it is visible rather than implicit.
   </Tab>
 
   <Tab title="3 · settle">
@@ -140,7 +140,7 @@ Each step is `{ name, execute, compensate }`, and the whole design is that these
 
 ## Why compensation is safe by construction
 
-A compensation is the reverse of the **exact journal that step posted** — every direction flipped, same accounts, same amounts. Two properties follow:
+A compensation is the reverse of the **exact journal that step posted**: every direction flipped, same accounts, same amounts. Two properties follow:
 
 <Columns cols={2}>
   <div>
@@ -155,14 +155,14 @@ A compensation is the reverse of the **exact journal that step posted** — ever
   </div>
 </Columns>
 
-This matters because the compensation path runs when something has *already* gone wrong. It must not depend on getting fresh logic right under failure — it depends only on arithmetic that was already true.
+This matters because the compensation path runs when something has *already* gone wrong. It must not depend on getting fresh logic right under failure: it depends only on arithmetic that was already true.
 
 `reverseLast` pops the most recent tracked journal and posts its inverse. Because each step tracks exactly the journal it posted, and compensation runs in reverse, the pop always yields the right one.
 
 ### The network fee is deliberately not reversed
 
 <div className="arc-claim">
-Gas was really spent. Reversing it would misstate the expense, so the network-fee journal is **not tracked** and therefore never compensated. It balances on its own — Dr expense, Cr chain float, in the fee asset — so the trial balance stays zero regardless.
+Gas was really spent. Reversing it would misstate the expense, so the network-fee journal is **not tracked** and therefore never compensated. It balances on its own, Dr expense, Cr chain float, in the fee asset, so the trial balance stays zero regardless.
 </div>
 
 This is a small decision that says a lot: the ledger is required to be *balanced* and *true*, and where those pull apart, true wins.
@@ -173,15 +173,15 @@ This is a small decision that says a lot: the ledger is required to be *balanced
 
 Compensation walks completed steps **backwards**: payout, then settle, then swap, then reserve.
 
-For the ledger alone, order is irrelevant — reversals commute, because addition commutes. But order is not irrelevant overall:
+For the ledger alone, order is irrelevant: reversals commute, because addition commutes. But order is not irrelevant overall:
 
 - The rail recall must happen **before** the settlement is unwound.
-- Each reversal journal must *describe the step it actually undoes*. Compensating forward would produce a journal labelled "refund sender" that reverses the payout entries — a balanced ledger with a **false audit trail**.
+- Each reversal journal must *describe the step it actually undoes*. Compensating forward would produce a journal labelled "refund sender" that reverses the payout entries: a balanced ledger with a **false audit trail**.
 
 <div className="arc-claim">
 This gap was found by mutation testing, not by inspection. Switching to forward order kept all sixteen tests green, because balance cannot detect it. Two tests asserting reversal order and account pairing were added; the mutant now fails.
 
-**Balance is necessary but not sufficient — an audit trail can be false while the arithmetic is true.**
+**Balance is necessary but not sufficient: an audit trail can be false while the arithmetic is true.**
 </div>
 
 [The journal that balanced and lied →](/stories/the-journal-that-balanced-and-lied)
@@ -211,12 +211,12 @@ Order of operations matters, and step three is where most implementations go wro
     A €0.10 transfer cannot carry a €0.35 fixed fee. Failing **at quote time** is far better than failing mid-saga, and this check is cheap.
   </Step>
   <Step title="Convert at mid, convert at quoted, record the difference as the FX spread fee">
-    The interesting one. The spread could have been left implicit in the quoted rate — the customer would see the same number.
+    The interesting one. The spread could have been left implicit in the quoted rate: the customer would see the same number.
   </Step>
 </Steps>
 
 <div className="arc-claim">
-Computing the spread explicitly makes it a fee line and a ledger entry, so corridor P&L can attribute revenue between the corridor fee and the FX margin. Burying it in the rate would make the margin invisible to reporting — which is precisely the number the business runs on.
+Computing the spread explicitly makes it a fee line and a ledger entry, so corridor P&L can attribute revenue between the corridor fee and the FX margin. Burying it in the rate would make the margin invisible to reporting, which is precisely the number the business runs on.
 </div>
 
 Quotes carry a 30-second TTL and `assertUsable` throws on an expired one. Rates move; honouring a stale quote is an unhedged loss. A property test asserts the customer is **never** given more than mid-market, across the full amount range. [The quote that aged →](/stories/the-quote-that-aged)
@@ -229,11 +229,11 @@ Six simulated rails with genuinely different behaviour:
 
 | Rail | Currency | Instant | Cut-off (UTC) | Notes |
 | --- | --- | --- | --- | --- |
-| `sepa_instant` | EUR | yes | — | €100k cap |
+| `sepa_instant` | EUR | yes | n/a | €100k cap |
 | `sepa_credit` | EUR | no | 15:00 | misses cut-off → next day |
-| `faster_payments` | GBP | yes | — | |
-| `nip` | NGN | yes | — | highest reject rate |
-| `mpesa` | KES | yes | — | highest timeout rate |
+| `faster_payments` | GBP | yes | n/a | |
+| `nip` | NGN | yes | n/a | highest reject rate |
+| `mpesa` | KES | yes | n/a | highest timeout rate |
 | `eft` | ZAR | no | 14:00 | T+2 |
 
 Rails are **idempotent on the caller's key**: resubmitting returns the original receipt rather than paying twice. This is the single most important property of a payout API and the easiest to get wrong. [The payout that paid twice →](/stories/the-payout-that-paid-twice)
@@ -241,7 +241,7 @@ Rails are **idempotent on the caller's key**: resubmitting returns the original 
 ### Retryable is a field, not a guess
 
 <div className="arc-claim">
-`RailError.retryable` is the field that matters. A **timeout** is retryable — the payout may or may not have landed, and that ambiguity is the entire reason idempotency keys exist. A **rejection** is not: retrying `account_closed` just fails again, more slowly.
+`RailError.retryable` is the field that matters. A **timeout** is retryable: the payout may or may not have landed, and that ambiguity is the entire reason idempotency keys exist. A **rejection** is not: retrying `account_closed` just fails again, more slowly.
 </div>
 
 `recall` returns `false` once past `settlesAt`. You cannot recall settled funds, and pretending otherwise would let the saga believe it unwound something it did not.
@@ -257,7 +257,7 @@ The chaos suite fails each of the five steps in turn and asserts:
 - status is `compensated`
 - the ledger is balanced in **every** currency
 - the sender's balance is **exactly** what it was before
-- every intermediate account — in-transit, corridor fee, FX spread — is back to zero
+- every intermediate account, in-transit, corridor fee, FX spread, is back to zero
 
 ### Real, not just injected
 
@@ -275,7 +275,7 @@ The chaos suite fails each of the five steps in turn and asserts:
 
 <div className="arc-gap">
 - **Holds.** The ledger models them (`available = posted − reserved`) but the saga debits directly rather than reserving at quote time.
-- **Recovery beyond compensation.** If a reversal itself fails, the saga returns `compensation_failed` and stops. A real system escalates that to an operational case — Phase 8.
+- **Recovery beyond compensation.** If a reversal itself fails, the saga returns `compensation_failed` and stops. A real system escalates that to an operational case: Phase 8.
 - **On-chain irreversibility.** Reversing `settle` is a ledger-level compensation representing funds recovered from the settlement partner, not an on-chain reversal. Nothing un-sends a confirmed transaction.
 </div>
 

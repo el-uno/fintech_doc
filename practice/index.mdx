@@ -68,7 +68,7 @@ Interview answers in this domain fall into three bands, and knowing which one yo
 | --- | --- | --- |
 | **Junior** | "Debits equal credits." | Correct, memorised, no model behind it. Cannot handle the follow-up. |
 | **Senior** | "Debits equal credits per currency, because offsetting a EUR debit against a USDC credit adds quantities of different things." | A model that generates the rule rather than reciting it. |
-| **Staff** | "…and that is why an FX conversion cannot be a two-legged journal. It needs position accounts to close each half — which is also where unhedged exposure becomes visible, so the constraint bought us a reporting capability." | Connects the constraint to a consequence elsewhere in the system. |
+| **Staff** | "…and that is why an FX conversion cannot be a two-legged journal. It needs position accounts to close each half, which is also where unhedged exposure becomes visible, so the constraint bought us a reporting capability." | Connects the constraint to a consequence elsewhere in the system. |
 
 <div className="arc-claim">
 The move from senior to staff is almost always the same: **name what the constraint costs, and what it bought.** An answer that only lists benefits reads as something learned rather than something lived.
@@ -76,7 +76,7 @@ The move from senior to staff is almost always the same: **name what the constra
 
 ---
 
-## Use the stories
+## Use the scenarios
 
 <div className="arc-claim">
 A concrete failure narrative beats an abstract answer in every interview, because it demonstrates the judgement instead of asserting it.
@@ -95,13 +95,13 @@ Compare:
   <div>
     **Demonstration**
 
-    "We reversed the compensation order deliberately and all sixteen tests passed — because reversals commute, so balance can't see ordering. We added two tests asserting order and account pairing."
+    "We reversed the compensation order deliberately and all sixteen tests passed, because reversals commute, so balance can't see ordering. We added two tests asserting order and account pairing."
 
     Now the interviewer knows you have actually thought about what your tests cannot see.
   </div>
 </Columns>
 
-[The seven stories](/stories) are written to be retold. The strongest ones are about what *did not* work — the mutation that passed, the boundary rule that silently did not apply.
+[The seven stories](/stories) are written to be retold. The strongest ones are about what *did not* work: the mutation that passed, the boundary rule that silently did not apply.
 
 ---
 

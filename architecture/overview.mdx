@@ -1,6 +1,6 @@
 ---
 title: 'Architecture overview'
-description: 'Six bounded contexts, one deployable, an event bus between them — and a boundary rule that fails the build rather than living in a wiki.'
+description: 'Six bounded contexts, one deployable, an event bus between them, and a boundary rule that fails the build rather than living in a wiki.'
 icon: 'layer-group'
 ---
 
@@ -8,7 +8,7 @@ icon: 'layer-group'
 
 Arc runs as a **modular monolith**: one deployable, six bounded contexts that never import each other's code. It reads as microservices in the architecture diagrams and runs with one command for anyone who clones the repository.
 
-That combination is the point. The interesting distributed-systems problems — sagas, compensating actions, at-least-once delivery, idempotency — are all present and genuinely implemented. The operational cost of running six services locally is not.
+That combination is the point. The interesting distributed-systems problems, sagas, compensating actions, at-least-once delivery, idempotency, are all present and genuinely implemented. The operational cost of running six services locally is not.
 
 ---
 
@@ -91,9 +91,9 @@ This is what makes "modular monolith" a checked claim rather than a label. Two i
     `../../ledger/src/posting` is caught immediately. This is the obvious case and the one people expect.
   </Step>
   <Step title="ESLint no-restricted-imports catches package-name imports">
-    `@arc/ledger` is **not** caught by dependency-cruiser, because it resolves through `node_modules` to a `dist` path that does not exist until after a build — so the rule silently skips it.
+    `@arc/ledger` is **not** caught by dependency-cruiser, because it resolves through `node_modules` to a `dist` path that does not exist until after a build, so the rule silently skips it.
 
-    That gap was found by deliberately probing both mechanisms rather than by reading the configuration. It is [a story in itself](/stories/the-boundary-that-wasnt), and it is the reason both layers exist.
+    That gap was found by deliberately probing both mechanisms rather than by reading the configuration. It is [a scenario in itself](/stories/the-boundary-that-wasnt), and it is the reason both layers exist.
 
   </Step>
 </Steps>
@@ -104,7 +104,7 @@ Two mechanisms, chosen by whether the caller can wait.
 
 <Columns cols={2}>
   <div>
-    **Events — for anything asynchronous**
+    **Events, for anything asynchronous**
 
     Product publishes `virtual_account.issued`. The ledger subscribes and provisions the matching liability account. Neither imports the other; the only shared thing is the schema in `@arc/contracts`.
 
@@ -112,7 +112,7 @@ Two mechanisms, chosen by whether the caller can wait.
 
   </div>
   <div>
-    **Ports — for anything synchronous**
+    **Ports, for anything synchronous**
 
     Movement needs the ledger *now*: a reservation must be accepted or rejected before the saga proceeds, so an event round-trip will not do.
 
@@ -127,7 +127,7 @@ The adapters wiring ports to implementations live at the composition root, outsi
 
 ## The event bus and the outbox
 
-Events are staged in a **transactional outbox** — written to a database table in the same transaction as the state change that produced them, then dispatched separately.
+Events are staged in a **transactional outbox**: written to a database table in the same transaction as the state change that produced them, then dispatched separately.
 
 <div className="arc-claim">
   Delivery is at-least-once; processing is effectively-once. A handler that already succeeded is
@@ -135,7 +135,7 @@ Events are staged in a **transactional outbox** — written to a database table 
   blocking the queue.
 </div>
 
-The alternative — publish after commit — has a window in which the state change lands and the event does not, which produces exactly the silent divergence that is impossible to debug six weeks later. The outbox trades that for duplicate delivery, which is a problem you can solve with idempotency. [Contexts and events](/architecture/contexts-and-events) covers the mechanism.
+The alternative, publish after commit, has a window in which the state change lands and the event does not, which produces exactly the silent divergence that is impossible to debug six weeks later. The outbox trades that for duplicate delivery, which is a problem you can solve with idempotency. [Contexts and events](/architecture/contexts-and-events) covers the mechanism.
 
 ---
 

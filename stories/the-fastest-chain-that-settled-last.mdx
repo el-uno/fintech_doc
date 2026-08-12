@@ -23,7 +23,7 @@ The reasoning is intuitive and completely wrong:
 The first sentence is the error. **A transaction is not settled when it is in a block.** It is settled when the probability of that block being reorganised out of the chain has fallen far enough that you are willing to pay someone real money against it.
 
 <div className="arc-claim">
-Settlement time is `block_time × confirmations_required`, and those two numbers are **inversely related by design**. Chains with fast, cheap blocks make each individual block less expensive to orphan — so they require more of them to reach equivalent confidence.
+Settlement time is `block_time × confirmations_required`, and those two numbers are **inversely related by design**. Chains with fast, cheap blocks make each individual block less expensive to orphan, so they require more of them to reach equivalent confidence.
 </div>
 
 ---
@@ -48,7 +48,7 @@ Sort that table by block time and you get Solana, Base, Polygon, Tron, Ethereum.
 
 Because block time is the number everyone publishes. It is on the landing page, it is in the comparison tables, and it is a single scalar that appears to mean "speed".
 
-Finality depth is a security parameter that lives in operational documentation and varies by who you ask. There is no consensus authority publishing "confirmations required" — exchanges set their own, and they set them by value at risk.
+Finality depth is a security parameter that lives in operational documentation and varies by who you ask. There is no consensus authority publishing "confirmations required": exchanges set their own, and they set them by value at risk.
 
 <div className="arc-gap">
 Which surfaces the honest complication: **finality depth is a policy choice, not a physical constant.** The numbers above are the values Arc simulates, chosen to reflect published guidance. A business with lower risk appetite would use higher numbers and see different settlement times.
@@ -78,7 +78,7 @@ score = normalise(settlementTime) × speedWeight
 ```
 
 <div className="arc-claim">
-High speed preference picks **Base**. Low speed preference picks **Tron** — cheaper, and 57 seconds is fine for a transfer that is not time-critical. Neither ever picks Polygon on speed, because the model can see what block time alone hides.
+High speed preference picks **Base**. Low speed preference picks **Tron**: cheaper, and 57 seconds is fine for a transfer that is not time-critical. Neither ever picks Polygon on speed, because the model can see what block time alone hides.
 </div>
 
 Both terms are normalised into comparable ranges before weighting, because adding seconds to gas units is meaningless.
@@ -91,15 +91,44 @@ Once you model finality properly, the other per-chain differences become visible
 
 | Chain | Distinguishing characteristic | What it costs the saga |
 | --- | --- | --- |
-| Solana | Highest **drop** rate — mempool eviction | Transactions that never mine and cost nothing; different compensation to a revert |
+| Solana | Highest **drop** rate, by transaction expiry rather than eviction | Frequent failures, but unambiguous ones |
 | Polygon | **Deepest reorgs** | A transaction counted as included can return to `pending` |
-| Ethereum | Highest fee volatility | Network-fee estimates age fastest |
+| Ethereum | Highest **fee volatility** | Network-fee estimates age fastest, so quotes go stale |
+| Base | Shallow finality on a fast chain | The cheapest speed available, and the usual answer |
+| Tron | Lowest fee, middling speed | The usual answer when the transfer is not time-critical |
 
 <div className="arc-claim">
 This is what "chain-agnostic" has to mean to be worth anything: not that the chains are interchangeable, but that **their differences are modelled and the choice is made per transfer** behind one interface.
 
 If all chains behaved identically, the abstraction would be decoration.
 </div>
+
+### The Solana row is the one worth arguing about
+
+At first glance "highest drop rate" reads as the worst entry in that table. It is not, and getting this right changed how the saga treats the chain.
+
+Solana has no global mempool. Transactions are forwarded to upcoming slot leaders, and each one carries a blockhash that expires after roughly a minute. Miss that window and the transaction is **permanently invalid**.
+
+Compare an EVM chain, where a transaction that has not landed is still sitting in mempools somewhere and might confirm later:
+
+<Columns cols={2}>
+  <div>
+    **EVM: a timeout is ambiguous**
+
+    Did it land? Unknown. It might land ten minutes from now, after you have already compensated and refunded the sender. That ambiguity is why idempotency keys are mandatory and why compensation itself has to tolerate a late arrival.
+  </div>
+  <div>
+    **Solana: a timeout resolves**
+
+    Once expired, the transaction cannot land. Ever. The saga gets a definite answer and can compensate without hedging against a straggler.
+  </div>
+</Columns>
+
+<div className="arc-claim">
+**A higher failure rate with unambiguous failures can be easier to build on than a lower failure rate with ambiguous ones.** Frequency and ambiguity are different properties, and a routing model that collapses both into "reliability" cannot express the difference.
+</div>
+
+That distinction only became visible after the finality modelling was fixed. Before it, Solana was just "the one with 400ms blocks".
 
 ---
 
@@ -117,7 +146,7 @@ Broadcasting without error means the transaction reached the mempool. It says no
 Arc's `settle` step re-reads the transaction and **requires `final`**:
 
 <div className="arc-claim">
-Checking `final` rather than "no error was thrown" is the difference between confirming settlement and merely confirming submission — and the wrong version looks completely correct until the day a transaction is dropped.
+Checking `final` rather than "no error was thrown" is the difference between confirming settlement and merely confirming submission, and the wrong version looks completely correct until the day a transaction is dropped.
 </div>
 
 ---

@@ -23,13 +23,13 @@ Every property that matters follows from taking that sentence seriously.
 There are two entirely different markets in a stablecoin, and confusing them is the source of most bad analysis.
 
 <Steps>
-  <Step title="Primary market — the issuer">
+  <Step title="Primary market: the issuer">
     A vetted institutional client wires $10m to the issuer. The issuer mints 10m tokens and sends them to the client's address. To reverse it, the client returns 10m tokens and the issuer wires $10m back, minus fees.
 
     This is the only place where tokens are created or destroyed, and it is **permissioned**. Access typically requires onboarding, KYB, and minimum sizes. A retail holder does not redeem with the issuer.
 
   </Step>
-  <Step title="Secondary market — everyone else">
+  <Step title="Secondary market: everyone else">
     Exchanges, DeFi pools, and wallets trading tokens that already exist. Price here is set by supply and demand, and it can and does deviate from $1.00.
   </Step>
 </Steps>
@@ -54,14 +54,14 @@ Reserve composition is the whole risk profile, and the categories differ enormou
 | Reserve asset                              | Liquidity under stress          | What can go wrong                                                                    |
 | ------------------------------------------ | ------------------------------- | ------------------------------------------------------------------------------------ |
 | Overnight reverse repo, T-bills < 3 months | Very high                       | Very little; the intended composition                                                |
-| Bank deposits                              | Uncertain — depends on the bank | Uninsured above deposit limits; SVB is the worked example                            |
+| Bank deposits                              | Uncertain: depends on the bank | Uninsured above deposit limits; SVB is the worked example                            |
 | Longer-dated Treasuries                    | High but at a price             | Mark-to-market loss if sold early into a rising-rate environment                     |
 | Commercial paper, corporate debt           | Poor when it matters            | Priced when nobody is buying; largely abandoned by major issuers after 2021 scrutiny |
 | Other crypto assets                        | Reflexive                       | Correlated with the exact stress that triggers redemptions                           |
 
 Two structural points follow.
 
-**Duration mismatch is the classic failure.** Tokens are redeemable on demand; if reserves are not, you have built a bank without a lender of last resort. This is why post-GENIUS Act rules in the US mandate short-dated, high-quality reserves — the statute is essentially legislating away the maturity transformation.
+**Duration mismatch is the classic failure.** Tokens are redeemable on demand; if reserves are not, you have built a bank without a lender of last resort. This is why post-GENIUS Act rules in the US mandate short-dated, high-quality reserves: the statute is essentially legislating away the maturity transformation.
 
 **Attestation is not audit.** Most issuers publish monthly attestations: an accounting firm confirming that on a stated date, stated assets existed. That is meaningfully weaker than a full financial-statement audit with going-concern analysis, and weaker still than continuous proof. Read what the report actually claims before treating it as a guarantee.
 
@@ -70,8 +70,8 @@ Two structural points follow.
 ## The three designs, ranked by how they fail
 
 <AccordionGroup>
-  <Accordion title="Fiat-collateralised — USDC, USDT, EURC" icon="building-columns">
-    One token, one dollar in reserve, redeemable from the issuer. Roughly the entire market by volume, and **about 99% of stablecoin supply is dollar-denominated** according to BIS data — a point with real monetary-sovereignty consequences for the countries on the receiving end of a corridor.
+  <Accordion title="Fiat-collateralised: USDC, USDT, EURC" icon="building-columns">
+    One token, one dollar in reserve, redeemable from the issuer. Roughly the entire market by volume, and **about 99% of stablecoin supply is dollar-denominated** according to BIS data: a point with real monetary-sovereignty consequences for the countries on the receiving end of a corridor.
 
     **Fails when:** the issuer's reserves become doubted, a custodian fails, or redemption is gated. Failure is a credit event, and it is fast.
 
@@ -79,14 +79,14 @@ Two structural points follow.
 
   </Accordion>
 
-  <Accordion title="Overcollateralised crypto-backed — DAI and descendants" icon="link">
+  <Accordion title="Overcollateralised crypto-backed: DAI and descendants" icon="link">
     Lock $150 of ETH, mint $100 of stablecoin. No issuer to trust; the collateral is on-chain and verifiable. But the collateral is volatile, so the system depends on liquidations happening fast enough during exactly the moments when the chain is congested and everyone is selling.
 
     **Fails when:** collateral falls faster than liquidators can act. The failure is mechanical and reflexive rather than a credit event.
 
   </Accordion>
 
-  <Accordion title="Algorithmic — largely a historical category" icon="triangle-exclamation">
+  <Accordion title="Algorithmic: largely a historical category" icon="triangle-exclamation">
     No meaningful collateral; the peg is maintained by a mint-and-burn relationship with a second, floating token. It works while demand grows and unwinds catastrophically when it stops, because the mechanism that defends the peg dilutes the asset backing it.
 
     Terra/UST erased approximately $40bn in May 2022. The design is not a variant of the others; it is a different thing wearing the same name, and the regulatory frameworks that arrived afterwards largely define it out of the permitted set.
@@ -104,7 +104,7 @@ If you are moving customer money through a stablecoin, you are taking on the iss
   <div>
     **Minimise time held.**
 
-    Exposure is a function of duration. Arc's saga converts, settles and pays out in one flow rather than warehousing stablecoin between transfers — the position exists for seconds, not days.
+    Exposure is a function of duration. Arc's saga converts, settles and pays out in one flow rather than warehousing stablecoin between transfers: the position exists for seconds, not days.
 
   </div>
   <div>
@@ -122,7 +122,7 @@ If you are moving customer money through a stablecoin, you are taking on the iss
   spreadsheet someone maintains by hand.
 </div>
 
-That design is worked through in full on [the ledger page](/architecture/ledger#worked-example) — it is the reason a multi-currency journal cannot be a simple two-legged entry.
+That design is worked through in full on [the ledger page](/architecture/ledger#worked-example): it is the reason a multi-currency journal cannot be a simple two-legged entry.
 
 <Card title="Next: settlement and finality" icon="clock" href="/primer/settlement-and-finality">
   Why "instant" is a marketing word, and finality is a probability curve you choose a point on.

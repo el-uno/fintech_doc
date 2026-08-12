@@ -11,7 +11,7 @@ Everything went right until the last step. The chain settled, Arc holds KES floa
 The rail rejects. Now the interesting part.
 
 <div className="arc-claim">
-Arc undoes things by posting the opposite journal, never by deleting. The sender ends with **exactly** the balance they started with — not approximately, and not after a manual adjustment.
+Arc undoes things by posting the opposite journal, never by deleting. The sender ends with **exactly** the balance they started with, not approximately, and not after a manual adjustment.
 </div>
 
 This is the same €1,000 transfer from [the consumer flow](/flows/consumer-remittance), failed at `payout`.
@@ -28,10 +28,10 @@ Four journals are posted, three of them tracked for compensation.
 | 2 | `swap` | EUR obligation → USDC asset | yes |
 | 3 | `settle` | USDC out, KES float in | yes |
 | 3b | `settle` | Network fee: Dr expense, Cr chain float | **no** |
-| 4 | `payout` | — rejected before posting | n/a |
+| 4 | `payout` |: rejected before posting | n/a |
 
 <div className="arc-claim">
-The network-fee journal is deliberately **not tracked** and therefore never reversed. Gas was really spent. Reversing it would produce a balanced ledger that misstates the expense — and where "balanced" and "true" pull apart, true wins.
+The network-fee journal is deliberately **not tracked** and therefore never reversed. Gas was really spent. Reversing it would produce a balanced ledger that misstates the expense, and where "balanced" and "true" pull apart, true wins.
 
 It balances on its own, so the trial balance stays zero regardless.
 </div>
@@ -54,7 +54,7 @@ RailError {
   <div>
     **A timeout would be retryable.**
 
-    The payout may or may not have landed — and that ambiguity is the entire reason idempotency keys exist. Resubmit with the same key; the rail returns the original receipt if it already processed it.
+    The payout may or may not have landed, and that ambiguity is the entire reason idempotency keys exist. Resubmit with the same key; the rail returns the original receipt if it already processed it.
   </div>
   <div>
     **A rejection is not.**
@@ -76,7 +76,7 @@ flowchart LR
     V --> D[status: compensated<br/>sender made whole]
 ```
 
-The saga walks **completed** steps in reverse. `payout` never completed, so there is no payout journal to reverse — but the rail recall is still attempted, because the saga cannot assume the submission left no trace.
+The saga walks **completed** steps in reverse. `payout` never completed, so there is no payout journal to reverse, but the rail recall is still attempted, because the saga cannot assume the submission left no trace.
 
 <Note>
 `recall` returns `false` once past `settlesAt`. You cannot recall settled funds, and pretending otherwise would let the saga believe it unwound something it did not. Here the payout was rejected outright, so there is nothing at the rail to recall.
@@ -94,7 +94,7 @@ Every direction flipped, same accounts, same amounts.
 | `asset.float.bank.KES` | | 138,254.00 |
 
 <div className="arc-gap">
-**This is a ledger-level compensation, not an on-chain reversal.** It represents funds recovered from the settlement partner. Nothing un-sends a confirmed on-chain transaction — that limitation is real and is stated rather than papered over.
+**This is a ledger-level compensation, not an on-chain reversal.** It represents funds recovered from the settlement partner. Nothing un-sends a confirmed on-chain transaction: that limitation is real and is stated rather than papered over.
 </div>
 
 ### 2 · Reverse `swap`
@@ -117,7 +117,7 @@ Both FX position accounts return to zero. The open exposure this transfer create
 | `revenue.fee.fx_spread.EUR` | 6.06 | |
 | `liability.customer.va_amina.EUR` | | 1000.00 |
 
-**The fees are reversed too.** Amina is refunded €1,000.00 — the full amount, not the amount net of fees. Arc absorbs the cost of a failed transfer, which is both the correct commercial answer and the only one that keeps the arithmetic clean.
+**The fees are reversed too.** Amina is refunded €1,000.00: the full amount, not the amount net of fees. Arc absorbs the cost of a failed transfer, which is both the correct commercial answer and the only one that keeps the arithmetic clean.
 
 ---
 
@@ -127,7 +127,7 @@ Both FX position accounts return to zero. The open exposure this transfer create
   <div>
     **If the original balanced, the reversal balances.**
 
-    Flipping every direction preserves the equality. A compensation can never itself unbalance the ledger — not because someone wrote it carefully, but because the arithmetic makes it impossible.
+    Flipping every direction preserves the equality. A compensation can never itself unbalance the ledger, not because someone wrote it carefully, but because the arithmetic makes it impossible.
   </div>
   <div>
     **The pair nets to zero.**
@@ -142,7 +142,7 @@ This matters because the compensation path runs when something has *already* gon
 
 ## Why the order matters
 
-For the ledger alone, order is irrelevant — reversals commute, because addition commutes. Run them forwards and the balances come out identical.
+For the ledger alone, order is irrelevant: reversals commute, because addition commutes. Run them forwards and the balances come out identical.
 
 Order is not irrelevant overall:
 
@@ -158,7 +158,7 @@ Order is not irrelevant overall:
 <div className="arc-claim">
 Switching to forward order kept all sixteen tests green, because balance cannot detect it. Two tests asserting reversal order and account pairing were added; the mutant now fails.
 
-**Balance is necessary but not sufficient — an audit trail can be false while the arithmetic is true.** [The full story →](/stories/the-journal-that-balanced-and-lied)
+**Balance is necessary but not sufficient: an audit trail can be false while the arithmetic is true.** [The full breakdown →](/stories/the-journal-that-balanced-and-lied)
 </div>
 
 ---
@@ -179,7 +179,7 @@ Switching to forward order kept all sixteen tests green, because balance cannot 
 
 Everything is back to zero except the gas, which was genuinely spent and stays on the books as an expense Arc absorbed.
 
-`SagaResult.status` is `compensated`. Amina gets a notification explaining the beneficiary number is invalid, and the entry log contains the full sequence — what was attempted, what succeeded, and exactly how each part was undone.
+`SagaResult.status` is `compensated`. Amina gets a notification explaining the beneficiary number is invalid, and the entry log contains the full sequence: what was attempted, what succeeded, and exactly how each part was undone.
 
 ---
 

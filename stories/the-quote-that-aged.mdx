@@ -7,7 +7,7 @@ icon: "hourglass-half"
 <span className="arc-eyebrow arc-eyebrow--amber">Story · time and money · 4 min</span>
 
 <div className="arc-symptom">
-Corridor revenue is down 4% on flat volume. Fees are unchanged, the spread is unchanged, and no pricing decision was made. The FX position accounts show small losses concentrated in a handful of transfers — all of them confirmed several minutes after they were quoted.
+Corridor revenue is down 4% on flat volume. Fees are unchanged, the spread is unchanged, and no pricing decision was made. The FX position accounts show small losses concentrated in a handful of transfers: all of them confirmed several minutes after they were quoted.
 </div>
 
 ---
@@ -20,7 +20,7 @@ A quote looks like a display value. It is not.
 A quote is a **short-dated option** that you have written and given away for free. The customer may exercise it if the rate moves in their favour and abandon it if it moves against them. You hold the risk on both sides and are paid for neither.
 </div>
 
-That asymmetry is the whole problem, and it does not require anyone to behave badly. A customer who quotes, gets distracted, comes back four minutes later and confirms is exercising an option they do not know they hold. Aggregated across everyone who does this, the losses are systematic rather than random — because the transfers that *do* get confirmed late are disproportionately the ones where waiting helped.
+That asymmetry is the whole problem, and it does not require anyone to behave badly. A customer who quotes, gets distracted, comes back four minutes later and confirms is exercising an option they do not know they hold. Aggregated across everyone who does this, the losses are systematic rather than random, because the transfers that *do* get confirmed late are disproportionately the ones where waiting helped.
 
 ---
 
@@ -44,7 +44,7 @@ EUR/KES at 139.70, Arc's spread 60 bp, so the quoted rate is 138.86.
 </Steps>
 
 <div className="arc-claim">
-Honouring a stale quote is an **unhedged loss**. The spread is compensation for taking currency risk for the duration of the transfer — not for the duration of the customer's attention.
+Honouring a stale quote is an **unhedged loss**. The spread is compensation for taking currency risk for the duration of the transfer, not for the duration of the customer's attention.
 </div>
 
 ---
@@ -96,7 +96,7 @@ The customer sees the same number either way. The difference is entirely interna
 | A stale-quote loss shows as | A slightly worse FX conversion, indistinguishable from a rate move | A shortfall against expected spread revenue on a specific transfer |
 
 <div className="arc-claim">
-Burying the spread in the rate makes the margin invisible to reporting — which is precisely the number the business runs on. It also makes this exact failure undiagnosable, because there is no expected value to compare the outcome against.
+Burying the spread in the rate makes the margin invisible to reporting, which is precisely the number the business runs on. It also makes this exact failure undiagnosable, because there is no expected value to compare the outcome against.
 </div>
 
 The 4% revenue decline in the symptom above is findable *only* because the spread has its own account. Without it, the loss appears as ordinary FX noise.
@@ -113,11 +113,11 @@ One assertion covers the whole class of pricing bug:
 
 It is a property, not an example, generated across randomly chosen amounts and rates. It catches:
 
-- Sign errors in the spread — applying it in the customer's favour
+- Sign errors in the spread: applying it in the customer's favour
 - Rounding that favours the customer at small amounts, where a fixed fee and a rounded conversion interact badly
 - Rate inversion errors, where `Rate.invert()` is applied one time too many
 
-Each of these produces a system that quietly gives money away and passes every test that only checks the arithmetic balances. Balance would be perfectly satisfied — Arc would simply be poorer, in a balanced way.
+Each of these produces a system that quietly gives money away and passes every test that only checks the arithmetic balances. Balance would be perfectly satisfied: Arc would simply be poorer, in a balanced way.
 
 ---
 
@@ -129,7 +129,7 @@ While validating the quote, it is worth rejecting the impossible:
 If `send − corridor fee − network fee` is not positive, **reject at quote time**. A €0.10 transfer cannot carry a €0.35 fixed fee.
 </div>
 
-Failing here costs nothing. Failing mid-saga means unwinding a transfer that could never have completed — compensating journals, a customer notification, and an operational event for something arithmetic could have ruled out before anything moved.
+Failing here costs nothing. Failing mid-saga means unwinding a transfer that could never have completed: compensating journals, a customer notification, and an operational event for something arithmetic could have ruled out before anything moved.
 
 ---
 
@@ -154,7 +154,7 @@ Failing here costs nothing. Failing mid-saga means unwinding a transfer that cou
   <Card title="The settlement saga" icon="rotate-left" href="/architecture/settlement-saga">
     Quote mechanics, fee ordering, and the FX spread derivation.
   </Card>
-  <Card title="Back to the stories" icon="book" href="/stories">
+  <Card title="Back to the scenarios" icon="book" href="/stories">
     All seven, by theme.
   </Card>
 </CardGroup>

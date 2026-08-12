@@ -1,5 +1,5 @@
 ---
-title: "ADR 0001 — Money as integer minor units"
+title: "ADR 0001: Money as integer minor units"
 sidebarTitle: "0001 · Money as integers"
 description: "Every monetary value is a bigint count of minor units. No floats anywhere, enforced by lint rather than convention."
 icon: "calculator"
@@ -15,7 +15,7 @@ icon: "calculator"
 
 ## Context
 
-Arc's central invariant is that every journal balances exactly: debits equal credits, with **no tolerance**. That requirement alone constrains the numeric representation, because a tolerance is not a policy anyone can defend — "how far off is acceptable?" has no answer that survives contact with a growing transaction volume.
+Arc's central invariant is that every journal balances exactly: debits equal credits, with **no tolerance**. That requirement alone constrains the numeric representation, because a tolerance is not a policy anyone can defend: "how far off is acceptable?" has no answer that survives contact with a growing transaction volume.
 
 The system also handles assets with wildly different scales:
 
@@ -25,7 +25,7 @@ The system also handles assets with wildly different scales:
 | USDC, USDT | 6 | 1e6 – 1e15 |
 | ETH and most ERC-20s | 18 | 1e18 and up |
 
-An IEEE-754 double is exact only to 2^53 ≈ 9.007e15. That covers cents comfortably and covers an 18-decimal token not at all — a single ordinary balance exceeds it.
+An IEEE-754 double is exact only to 2^53 ≈ 9.007e15. That covers cents comfortably and covers an 18-decimal token not at all: a single ordinary balance exceeds it.
 
 So the question was not "are floats accurate enough?" but "what representation makes the exactness requirement structural rather than aspirational?"
 
@@ -47,7 +47,7 @@ error  toFixed() formats a float. Use Money.toDecimalString()                  n
 ```
 
 <div className="arc-claim">
-A convention that depends on every future developer remembering it is not a convention — it is a countdown. Making it a build failure is what turns the decision into a property of the system.
+A convention that depends on every future developer remembering it is not a convention: it is a countdown. Making it a build failure is what turns the decision into a property of the system.
 </div>
 
 Two files carry a scoped exception with a written justification: the seeded PRNG in `packages/chain/src/random.ts` (32-bit bit-mixing, not money) and the Jaro–Winkler implementation in `services/risk/src/sanctions.ts` (similarity thresholds, not amounts). Each disable is file-scoped with the reasoning above it, rather than a repository-wide relaxation.
@@ -67,7 +67,7 @@ Two files carry a scoped exception with a written justification: the seeded PRNG
 ### Costs
 
 <div className="arc-gap">
-- **Every amount must be converted at the system edge.** JSON carries minor units as **strings**, never numbers, because most clients parse a JSON number as a float — which would silently reintroduce the exact problem this decision exists to remove. Every API, event envelope and database boundary needs an explicit codec.
+- **Every amount must be converted at the system edge.** JSON carries minor units as **strings**, never numbers, because most clients parse a JSON number as a float, which would silently reintroduce the exact problem this decision exists to remove. Every API, event envelope and database boundary needs an explicit codec.
 - **Callers must choose a rounding mode explicitly.** More verbose. That verbosity *is* the point: a rounding mode chosen by default is a rounding mode nobody reviewed.
 - **Ergonomic cost.** `Money.multiply(rate)` is more typing than `amount * rate`, and every contributor has to learn the type before they can write a line of monetary code.
 - **Third-party interop.** Anything handing back a float must be converted at the edge, carefully, once.
@@ -78,15 +78,15 @@ Two files carry a scoped exception with a written justification: the seeded PRNG
 ## Alternatives
 
 <AccordionGroup>
-  <Accordion title="Floats — rejected" icon="xmark">
+  <Accordion title="Floats: rejected" icon="xmark">
     Binary fractions cannot represent most decimal money values. `0.1 + 0.2 === 0.30000000000000004`, and each error is around 1e-17.
 
-    Individually negligible; **structurally fatal**, because the errors accumulate exactly in the FX, fee, and batching paths — the paths that run most often and feed reconciliation. The result is a system where the trial balance is close to zero and nobody can say why it is not zero.
+    Individually negligible; **structurally fatal**, because the errors accumulate exactly in the FX, fee, and batching paths: the paths that run most often and feed reconciliation. The result is a system where the trial balance is close to zero and nobody can say why it is not zero.
 
     The 2^53 ceiling settles it independently: an 18-decimal token balance cannot be held in a double at all.
   </Accordion>
 
-  <Accordion title="A decimal library, or Postgres NUMERIC — viable, rejected" icon="scale-balanced">
+  <Accordion title="A decimal library, or Postgres NUMERIC: viable, rejected" icon="scale-balanced">
     This is the mainstream answer and it is a good one. Arbitrary-precision decimals handle the accuracy problem correctly and are widely used in financial systems.
 
     Rejected for three reasons:
@@ -98,7 +98,7 @@ Two files carry a scoped exception with a written justification: the seeded PRNG
     The honest counterpoint: a decimal type is more ergonomic and less surprising to new contributors. That cost was accepted.
   </Accordion>
 
-  <Accordion title="Integer cents as number rather than bigint — rejected" icon="hashtag">
+  <Accordion title="Integer cents as number rather than bigint: rejected" icon="hashtag">
     Sidesteps the fractional-representation problem while keeping familiar arithmetic, and works fine for fiat.
 
     Rejected on the 2^53 ceiling alone. For a chain-agnostic system settling in 6- and 18-decimal assets, this is not a close call.

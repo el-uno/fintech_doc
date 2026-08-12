@@ -1,7 +1,7 @@
 ---
 title: "Architecture decisions"
 sidebarTitle: "Overview"
-description: "Numbered decision records — the choice, the context that forced it, the consequences accepted, and the alternatives rejected."
+description: "Numbered decision records: the choice, the context that forced it, the consequences accepted, and the alternatives rejected."
 icon: "gavel"
 ---
 
@@ -32,9 +32,9 @@ These decisions are made and implemented but not yet written up as records. They
 
 | # | Decision | Where it currently lives |
 | --- | --- | --- |
-| 0003 | Chain abstraction — one driver interface, deterministic simulator behind it | [The chain layer](/architecture/chain-layer) |
+| 0003 | Chain abstraction: one driver interface, deterministic simulator behind it | [The chain layer](/architecture/chain-layer) |
 | 0004 | Saga with compensating actions rather than two-phase commit | [The settlement saga](/architecture/settlement-saga) |
-| 0005 | Idempotency strategy — keys at the rail, the chain, and the API | [The payout that paid twice](/stories/the-payout-that-paid-twice) |
+| 0005 | Idempotency strategy: keys at the rail, the chain, and the API | [The payout that paid twice](/stories/the-payout-that-paid-twice) |
 | 0006 | Transactional outbox for at-least-once delivery | [Contexts and events](/architecture/contexts-and-events) |
 | 0007 | Multi-tenancy model for the partner platform | Phase 7 |
 
@@ -55,12 +55,12 @@ Every record on this site uses the same four sections, and the order is delibera
     Both directions. What this makes easy, and what it makes hard or impossible. **The costs section is the one that earns the record its place.**
   </Step>
   <Step title="Alternatives">
-    What else was considered and specifically why it was rejected. Not strawmen — the version of each alternative its advocate would recognise.
+    What else was considered and specifically why it was rejected. Not strawmen: the version of each alternative its advocate would recognise.
   </Step>
 </Steps>
 
 <Note>
 ADRs are **immutable once accepted**. A decision that changes gets a new record that supersedes the old one, and the old one stays in place marked as superseded.
 
-Editing an accepted ADR destroys the only thing it was for: the record of what was known and believed at the time. The same reasoning as the ledger's append-only entries — the record of what happened stays separate from the record of what was later thought better.
+Editing an accepted ADR destroys the only thing it was for: the record of what was known and believed at the time. The same reasoning as the ledger's append-only entries: the record of what happened stays separate from the record of what was later thought better.
 </Note>

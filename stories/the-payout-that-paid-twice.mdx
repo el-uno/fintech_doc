@@ -7,7 +7,7 @@ icon: "clone"
 <span className="arc-eyebrow arc-eyebrow--amber">Story · distributed failure · 5 min</span>
 
 <div className="arc-symptom">
-A beneficiary in Nairobi received KES 138,254.00 twice, four seconds apart, for a transfer the sender made once. The ledger shows one transfer and one payout. The rail's statement shows two. Nothing in the logs looks like an error — the retry that caused it is logged at `info`, because it worked.
+A beneficiary in Nairobi received KES 138,254.00 twice, four seconds apart, for a transfer the sender made once. The ledger shows one transfer and one payout. The rail's statement shows two. Nothing in the logs looks like an error: the retry that caused it is logged at `info`, because it worked.
 </div>
 
 ---
@@ -65,7 +65,7 @@ The saga has exactly two options after a timeout and both are wrong without more
 
 ## The actual fix: the caller supplies identity
 
-The retry is not a new instruction. It is *the same instruction, sent again* — and the only party who knows that is the caller.
+The retry is not a new instruction. It is *the same instruction, sent again*, and the only party who knows that is the caller.
 
 So the caller says so, with an **idempotency key** derived from the transfer id:
 
@@ -77,7 +77,7 @@ await rail.submit({
 ```
 
 <div className="arc-claim">
-Resubmitting with the same key returns **the original receipt** rather than paying twice. The rail, not the saga, becomes responsible for recognising a repeat — because the rail is the only party that knows whether it already acted.
+Resubmitting with the same key returns **the original receipt** rather than paying twice. The rail, not the saga, becomes responsible for recognising a repeat, because the rail is the only party that knows whether it already acted.
 </div>
 
 This is the single most important property of a payout API and the easiest to get wrong. It has to hold at every layer that can retry:
@@ -89,7 +89,7 @@ This is the single most important property of a payout API and the easiest to ge
 | Chain broadcast | Transfer id | Rebroadcast returns the original hash rather than a second transaction |
 | Event handlers | Event id | A redelivered event is not processed twice |
 
-Arc's chain simulator implements this deliberately — `broadcast` is idempotent by key, matching real client behaviour and matching Arc's own retry semantics. A retry that produced a second on-chain transaction would be a duplicate payment with no recall path at all.
+Arc's chain simulator implements this deliberately: `broadcast` is idempotent by key, matching real client behaviour and matching Arc's own retry semantics. A retry that produced a second on-chain transaction would be a duplicate payment with no recall path at all.
 
 ---
 
@@ -120,7 +120,7 @@ class RailError extends Error {
 </Columns>
 
 <div className="arc-claim">
-Making retryability a field on the error rather than a decision at the call site means the rail adapter — the only component that understands the rail's semantics — decides, once, in one place.
+Making retryability a field on the error rather than a decision at the call site means the rail adapter, the only component that understands the rail's semantics, decides, once, in one place.
 </div>
 
 M-Pesa has the highest timeout rate of the six rails Arc simulates. NIP has the highest rejection rate. Those are different failure profiles that demand different handling, and a system treating all rail errors as "error" handles both badly.
@@ -136,7 +136,7 @@ recall(receipt): boolean  // false once past settlesAt
 ```
 
 <div className="arc-claim">
-You cannot recall settled funds. `recall` returns `false` once past `settlesAt`, and the saga must handle that rather than assuming success — because pretending otherwise would let it believe it unwound something it did not.
+You cannot recall settled funds. `recall` returns `false` once past `settlesAt`, and the saga must handle that rather than assuming success, because pretending otherwise would let it believe it unwound something it did not.
 </div>
 
 A system that assumes recall always works produces a ledger showing money returned that is, in reality, sitting in a stranger's mobile-money wallet in Nairobi.

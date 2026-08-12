@@ -7,7 +7,7 @@ icon: "coins"
 <span className="arc-eyebrow arc-eyebrow--amber">Story · exactness · 5 min</span>
 
 <div className="arc-symptom">
-Month-end. The trial balance is off by **€0.03**. Not €30,000 — three cents. Every individual transfer reconciles against the bank statement. Every journal, checked by hand, balances. The finance lead wants to know where three cents went, and the honest answer is that nobody has any idea.
+Month-end. The trial balance is off by **€0.03**. Not €30,000: three cents. Every individual transfer reconciles against the bank statement. Every journal, checked by hand, balances. The finance lead wants to know where three cents went, and the honest answer is that nobody has any idea.
 </div>
 
 ---
@@ -19,7 +19,7 @@ A €30,000 break has a shape. It is one transfer, or one duplicated batch, and 
 Three cents has no shape. It could be one error of three cents, three errors of one cent, or three hundred errors of one hundredth of a cent that happened to accumulate. There is nothing to sort on, nothing to filter by, and no transaction that looks wrong.
 
 <div className="arc-claim">
-The dangerous property of a small break is not its size. It is that **it grows with volume** — and that it is indistinguishable, on any given day, from a system that is working.
+The dangerous property of a small break is not its size. It is that **it grows with volume**: and that it is indistinguishable, on any given day, from a system that is working.
 </div>
 
 Someone will eventually suggest a tolerance. That suggestion is the real failure, and it arrives about a week in.
@@ -46,7 +46,7 @@ const fee = Math.round(amount * 0.015 * 100) / 100;  // 0.49
 
 And **€0.00995 has quietly ceased to exist.**
 
-Not moved. Not lost to a rounding account. It was in the multiplication result and it is not in the journal, and no line in the system records the discrepancy — because from the journal's point of view there is no discrepancy. The arithmetic closes. It just closes around a different amount than the fee schedule specifies.
+Not moved. Not lost to a rounding account. It was in the multiplication result and it is not in the journal, and no line in the system records the discrepancy, because from the journal's point of view there is no discrepancy. The arithmetic closes. It just closes around a different amount than the fee schedule specifies.
 
 Three hundred transfers of that shape in a month is €2.98. Round it the other way on some and the residuals partly cancel, which is worse: the break becomes small, erratic, and impossible to characterise.
 
@@ -78,7 +78,7 @@ const { value: fee, residual } = divResidual(amount.multiply(FEE_BPS), 10_000n);
 | `revenue.rounding.EUR` | | 0.01 |
 
 <div className="arc-claim">
-The journal still balances. The fee is still €0.49. But the residual is now **a number someone can look at** — a balance on `revenue.rounding.EUR` that can be queried, reported, and explained.
+The journal still balances. The fee is still €0.49. But the residual is now **a number someone can look at**: a balance on `revenue.rounding.EUR` that can be queried, reported, and explained.
 
 Three cents at month-end stops being a mystery and becomes a line item.
 </div>
@@ -106,7 +106,7 @@ The residual mechanism only works because of a decision made much earlier: [mone
   </div>
 </Columns>
 
-This is why the lint rules are aggressive. `Math.round`, `parseFloat`, `toFixed` and fractional literals are all build errors in source — not because any single use is catastrophic, but because each one silently removes the ability to account for what it discarded.
+This is why the lint rules are aggressive. `Math.round`, `parseFloat`, `toFixed` and fractional literals are all build errors in source, not because any single use is catastrophic, but because each one silently removes the ability to account for what it discarded.
 
 ---
 
@@ -118,7 +118,7 @@ One example does not prove an allocator is safe. So the guarantee is stated as a
 **Splitting any amount across any weights always sums back to exactly the original.**
 </div>
 
-The naive implementation fails this immediately. Splitting €10.00 three ways gives €3.33 each, totalling €9.99 — a cent evaporates. Arc's allocator distributes remainders deterministically so the total is preserved, and the property test asserts it across randomly generated amounts and weight vectors rather than the handful of cases someone thought to write down.
+The naive implementation fails this immediately. Splitting €10.00 three ways gives €3.33 each, totalling €9.99: a cent evaporates. Arc's allocator distributes remainders deterministically so the total is preserved, and the property test asserts it across randomly generated amounts and weight vectors rather than the handful of cases someone thought to write down.
 
 ---
 
@@ -129,7 +129,7 @@ The naive implementation fails this immediately. Splitting €10.00 three ways g
     Every rounding operation decides who keeps the fraction. Making the mode explicit forces someone to choose deliberately rather than inherit whatever the language does.
   </Step>
   <Step title="A residual must have somewhere to go">
-    "Round and move on" is not an algorithm — it is an unrecorded transfer of value. Give the remainder an account and it becomes auditable.
+    "Round and move on" is not an algorithm: it is an unrecorded transfer of value. Give the remainder an account and it becomes auditable.
   </Step>
   <Step title="Never accept a tolerance on the balance check">
     The moment `Math.abs(debits - credits) < 0.01` appears, the ledger stops being a ledger. There is no defensible answer to "how far off is acceptable?", and the threshold only ever moves in one direction.

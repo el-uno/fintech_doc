@@ -23,7 +23,7 @@ Missing a cut-off feels like being an hour late. It is not. The delay **compound
     16:00, cut-off was 15:00. One hour late.
   </Step>
   <Step title="The payment queues to the next opening">
-    Not to 15:00 tomorrow — to the next time the rail **opens**. That is the following business morning.
+    Not to 15:00 tomorrow: to the next time the rail **opens**. That is the following business morning.
   </Step>
   <Step title="Then it takes the rail's normal latency">
     The queue position is not a head start. The T+2 clock starts when the batch is picked up, not when the payment was submitted.
@@ -34,7 +34,7 @@ Missing a cut-off feels like being an hour late. It is not. The delay **compound
 </Steps>
 
 <div className="arc-claim">
-Missing a batch rail's cut-off by an hour costs a **day** — the queued payment starts from the next opening *and then* takes the rail's normal latency. The two delays add; they do not overlap.
+Missing a batch rail's cut-off by an hour costs a **day**: the queued payment starts from the next opening *and then* takes the rail's normal latency. The two delays add; they do not overlap.
 </div>
 
 Sixty minutes of lateness produced ninety-six hours of delay. Every step is correct behaviour.
@@ -43,7 +43,7 @@ Sixty minutes of lateness produced ninety-six hours of delay. Every step is corr
 
 ## Why estimates are usually wrong here
 
-The estimate said "within 1 business day", which is the rail's *latency* — its documented, headline number. Latency is what the rail publishes because latency is what the rail controls.
+The estimate said "within 1 business day", which is the rail's *latency*: its documented, headline number. Latency is what the rail publishes because latency is what the rail controls.
 
 The customer experiences **submission to arrival**, which is:
 
@@ -61,11 +61,11 @@ Rails carry their windows as data, not as a comment:
 
 | Rail | Currency | Instant | Cut-off (UTC) | Latency |
 | --- | --- | --- | --- | --- |
-| `sepa_instant` | EUR | yes | — | seconds |
+| `sepa_instant` | EUR | yes | n/a | seconds |
 | `sepa_credit` | EUR | no | 15:00 | next business day |
-| `faster_payments` | GBP | yes | — | seconds |
-| `nip` | NGN | yes | — | seconds |
-| `mpesa` | KES | yes | — | seconds |
+| `faster_payments` | GBP | yes | n/a | seconds |
+| `nip` | NGN | yes | n/a | seconds |
+| `mpesa` | KES | yes | n/a | seconds |
 | `eft` | ZAR | no | 14:00 | T+2 |
 
 Two functions do the work:
@@ -75,19 +75,19 @@ isRailOpen(rail, at): boolean
 nextSettlementTime(rail, submittedAt): Date
 ```
 
-`isRailOpen` returns `true` unconditionally for instant rails — they have no window, and special-casing that once means every caller downstream stops thinking about it.
+`isRailOpen` returns `true` unconditionally for instant rails: they have no window, and special-casing that once means every caller downstream stops thinking about it.
 
 `nextSettlementTime` does the compounding arithmetic properly: find the next opening, then add the rail's latency, then skip non-business days.
 
 <div className="arc-claim">
-**That compounding is asserted by a test that checks the exact arithmetic**, not assumed. A test that only checked "later than submission" would pass for an implementation that adds one hour — which is precisely the bug this exists to prevent.
+**That compounding is asserted by a test that checks the exact arithmetic**, not assumed. A test that only checked "later than submission" would pass for an implementation that adds one hour, which is precisely the bug this exists to prevent.
 </div>
 
 ---
 
 ## The product decision this forces
 
-Once the real arrival time is computable rather than estimated, a genuine choice appears — and it only appears because the arithmetic is honest.
+Once the real arrival time is computable rather than estimated, a genuine choice appears, and it only appears because the arithmetic is honest.
 
 <Columns cols={2}>
   <div>
@@ -102,7 +102,7 @@ Once the real arrival time is computable rather than estimated, a genuine choice
   </div>
 </Columns>
 
-At 14:00 the cheap rail costs an hour of latency. At 16:00 the same choice costs four days. **The right rail depends on the clock**, which means rail selection cannot be a static per-currency mapping — and a system whose `nextSettlementTime` is approximate cannot make the decision at all.
+At 14:00 the cheap rail costs an hour of latency. At 16:00 the same choice costs four days. **The right rail depends on the clock**, which means rail selection cannot be a static per-currency mapping, and a system whose `nextSettlementTime` is approximate cannot make the decision at all.
 
 <div className="arc-gap">
 Arc currently maps currency to rail statically, with the cut-off arithmetic available but not yet driving selection. Wiring deadline-aware rail choice belongs with the transfer API. Stating it here rather than implying the capability exists.
@@ -112,7 +112,7 @@ Arc currently maps currency to rail statically, with the cut-off arithmetic avai
 
 ## The related trap: T+2 is not "two days"
 
-`eft` is T+2. That is two **settlement** days, and the count starts from the settlement date — which is itself determined by the cut-off.
+`eft` is T+2. That is two **settlement** days, and the count starts from the settlement date, which is itself determined by the cut-off.
 
 Submitted Friday at 15:00, one hour past the 14:00 cut-off:
 
@@ -123,7 +123,7 @@ Tuesday        T+1
 Wednesday      T+2 → funds available
 ```
 
-Five calendar days for a payment that missed its window by sixty minutes. Add a public holiday in either jurisdiction and it is six or seven — and the two jurisdictions have **different** holiday calendars, which is a detail that reliably surprises people building their first corridor.
+Five calendar days for a payment that missed its window by sixty minutes. Add a public holiday in either jurisdiction and it is six or seven, and the two jurisdictions have **different** holiday calendars, which is a detail that reliably surprises people building their first corridor.
 
 ---
 
