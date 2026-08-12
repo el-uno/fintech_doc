@@ -1,0 +1,6 @@
+node_modules/
+.DS_Store
+
+# Mintlify CLI local build output
+.mintlify/
+.mint/
